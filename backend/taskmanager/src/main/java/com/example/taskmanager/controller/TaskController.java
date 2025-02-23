@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = "http://localhost:3000") // Vueのポート番号
+@CrossOrigin(origins = "http://localhost:5173") // Vueのポート番号
 public class TaskController {
     private final TaskService taskService;
 

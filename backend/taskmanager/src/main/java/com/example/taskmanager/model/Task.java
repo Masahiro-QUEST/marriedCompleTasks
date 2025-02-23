@@ -21,12 +21,14 @@ public class Task {
     
     private String title;
     private String description;
+    private String registerDate;
     private boolean completed;
 
-    public Task(Long id, String title, String description, boolean completed) {
+    public Task(Long id, String title, String description, String registerDate, boolean completed) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.registerDate = registerDate;
         this.completed = completed;
     }
 }

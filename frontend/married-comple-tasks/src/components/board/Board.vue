@@ -4,7 +4,7 @@
     <Modal :visible="isAddTaskModalVisible" @close="isAddTaskModalVisible = false">
       <div>
         <h2>新しいタスクを追加</h2>
-        <form @submit="handleSubmit" @submit.prevent="addTask">
+        <form @submit.prevent="addTask">
           <label>
             タイトル:
             <input v-model="newTask.titleLabel" required />
@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Column from '../column/Column.vue'
 import Modal from '../modal/Modal.vue'
 export default {
@@ -139,16 +140,23 @@ export default {
       this.selectedColumnId = coloumnId
       this.isAddTaskModalVisible = true
     },
-    addTask() {
-      // タスク追加のロジックをここに実装
-      const column = this.lists.find((list) => list.id === this.selectedColumnId)
-      column.cards.push({
-        id: column.cards.length + 1,
-        titleLabel: this.newTask.titleLabel,
-        dateLabel: this.newTask.dateLabel,
-        description: this.newTask.description,
-      })
-      this.isAddTaskModalVisible = false
+    async addTask() {
+      try {
+        // サーバーに送るデータの型を合わせる
+        const requestData = {
+          title: this.newTask.titleLabel,
+          registerDate: this.newTask.dateLabel.replaceAll('-', ''),
+          description: this.newTask.description,
+          status: '未完了',
+        }
+        // 実際にPOSTリクエストを投げる
+        const response = await axios.post('http://localhost:8080/api/tasks', requestData)
+
+        // バックエンドからのレスポンスに新規タスクのIDなどが含まれている場合はこちら
+        const createdTask = response.data
+      } catch (error) {
+        console.error('Failed to add task:', error)
+      }
     },
     updateLists() {
       // リスト更新時に必要な処理があればここで追加

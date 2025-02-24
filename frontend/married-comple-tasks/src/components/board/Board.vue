@@ -58,56 +58,17 @@ export default {
         {
           id: 1,
           title: '未着手',
-          cards: [
-            {
-              id: 1,
-              titleLabel: 'タスクタイトル1',
-              dateLabel: '2021-01-01',
-              description: 'Description for Task 1',
-            },
-            {
-              id: 2,
-              titleLabel: 'タスクタイトル2',
-              dateLabel: '2021-01-02',
-              description: 'Description for Task 2',
-            },
-          ],
+          cards: [{}],
         },
         {
           id: 2,
-          title: '計画中',
-          cards: [
-            {
-              id: 3,
-              titleLabel: 'タスクタイトル3',
-              dateLabel: '2021-01-02',
-              description: 'Description for Task 3',
-            },
-          ],
+          title: '進行中',
+          cards: [{}],
         },
         {
           id: 3,
-          title: '進行中',
-          cards: [
-            {
-              id: 4,
-              titleLabel: 'タスクタイトル4',
-              dateLabel: '2021-01-02',
-              description: 'Description for Task 4',
-            },
-          ],
-        },
-        {
-          id: 4,
           title: '完了',
-          cards: [
-            {
-              id: 5,
-              titleLabel: 'タスクタイトル5',
-              dateLabel: '2021-01-02',
-              description: 'Description for Task 5',
-            },
-          ],
+          cards: [{}],
         },
       ],
       newTask: { titleLabel: '', dateLabel: '', description: '' },
@@ -117,6 +78,34 @@ export default {
     }
   },
   methods: {
+    async fetchTasks() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/tasks')
+        const tasks = response.data
+        console.log('Fetched tasks:', tasks)
+        // タスクデータを `cards` に変換
+        const cards = tasks.map((task) => ({
+          id: task.id,
+          titleLabel: task.title,
+          dateLabel: task.registerDate ? this.formatDate(task.registerDate) : '',
+          description: task.description,
+          completed: task.completed,
+        }))
+
+        // Vue の reactivity に合わせてリストを更新
+        this.lists = [
+          { id: 1, title: '未着手', cards: cards.filter((task) => !task.completed) },
+          { id: 2, title: '進行中', cards: [] }, // 進行中のタスクをどうするかによる
+          { id: 3, title: '完了', cards: cards.filter((task) => task.completed) },
+        ]
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error)
+      }
+    },
+    formatDate(dateString) {
+      if (!dateString) return ''
+      return `${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}`
+    },
     handleAddCard(columnId) {
       // カード追加のロジックをここに実装
       this.isCardModalVisible = true
@@ -157,6 +146,7 @@ export default {
       } catch (error) {
         console.error('Failed to add task:', error)
       }
+      this.isAddTaskModalVisible = false
     },
     updateLists() {
       // リスト更新時に必要な処理があればここで追加
@@ -166,6 +156,9 @@ export default {
       console.log('Form submitted')
       isAddTaskModalVisible = false
     },
+  },
+  async mounted() {
+    await this.fetchTasks()
   },
 }
 </script>

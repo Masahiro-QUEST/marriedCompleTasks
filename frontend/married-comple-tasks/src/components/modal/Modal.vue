@@ -4,9 +4,8 @@
     <div class="modal-content" @click.stop>
       <button class="close-button" @click="close">×</button>
       <slot></slot>
-      <!-- taskIdがある場合のみ削除ボタンを表示 -->
-      <div v-if="taskId" class="editClass">
-        <div>編集</div>
+      <!-- taskId がある場合、削除ボタンを表示 -->
+      <div v-if="taskId" class="delete-section">
         <div @click="handleDelete" class="delete-button" :class="{ loading: isDeleting }">
           {{ isDeleting ? '削除中...' : '削除' }}
         </div>
@@ -17,7 +16,6 @@
 
 <script>
 import axios from 'axios'
-
 export default {
   name: 'Modal',
   props: {
@@ -44,7 +42,6 @@ export default {
       this.isDeleting = true
       try {
         await axios.delete(`http://localhost:8080/api/tasks/${this.taskId}`)
-        // 削除が成功したら、親コンポーネントに削除完了イベントを通知
         this.$emit('deleted', this.taskId)
         this.close()
       } catch (error) {
@@ -70,7 +67,6 @@ export default {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
-
 .modal-content {
   background: #fff;
   padding: 20px;
@@ -79,7 +75,6 @@ export default {
   max-width: 90%;
   position: relative;
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -87,7 +82,6 @@ export default {
   width: 100%;
   height: 100%;
 }
-
 .close-button {
   background: none;
   border: none;
@@ -97,19 +91,14 @@ export default {
   right: 10px;
   cursor: pointer;
 }
-
-.editClass {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.delete-section {
   margin-top: 15px;
+  text-align: right;
 }
-
 .delete-button {
   cursor: pointer;
   color: red;
 }
-
 .delete-button.loading {
   color: gray;
   pointer-events: none;
